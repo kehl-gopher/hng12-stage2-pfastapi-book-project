@@ -22,13 +22,15 @@ jobs:
         run: pytest
 
   deploy:
-    runs-on: ubuntu-latest
-    needs: test  # Wait for the 'test' job to finish successfully
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy to server
-        run: |
-          # Your deployment script here
+        runs-on: ubuntu-latest
+        needs: test  
+        if: github.ref == 'refs/heads/main'  # Run only when merged to main
+        steps:
+            - uses: actions/checkout@v2
+            - name: "Check if deploy job was triggered"
+              run: |
+                echo "Deploy job triggered successfully"
+            - name: "Deploy application"
+              run: |
+                pytest
+                echo "Deploying application"
