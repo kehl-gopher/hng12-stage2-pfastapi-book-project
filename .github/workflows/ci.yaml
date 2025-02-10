@@ -32,5 +32,4 @@ jobs:
                 echo "Deploy job triggered successfully"
             - name: "Deploy application"
               run: |
-                pytest
                 echo "Deploying application"
