@@ -21,13 +21,12 @@ jobs:
             - name: "run tests"
               run: |
                   pytest
-    deploy:  # Job name must be exactly "deploy"
+    deploy:  
             runs-on: ubuntu-latest
-            needs: test  # Ensures tests pass before deploying
+            needs: test  
             if: github.ref == 'refs/heads/main'  # Run only when merged to main
             steps:
                 - uses: actions/checkout@v2
                 - name: "Deploy application"
                   run: |
                     echo "Deploying..."
-                # Add actual deployment commands here
