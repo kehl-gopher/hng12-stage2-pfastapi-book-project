@@ -102,16 +102,10 @@ jobs:
               --name fastapi-app \
               --network $NETWORK_NAME \
               -p 8000:8000 \
-              --env-file .env \
-              ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
+              fastapi-app:latest
 
-            # Run Nginx Container
             docker run -d \
               --name nginx_proxy \
               --network $NETWORK_NAME \
               -p 80:80 \
-              --env-file .env \
-              ${{ secrets.DOCKER_USERNAME }}/nginx_proxy:latest
-
-            # Verify Network Connection
-            docker network inspect $NETWORK_NAME
+              nginx_proxy:latest
