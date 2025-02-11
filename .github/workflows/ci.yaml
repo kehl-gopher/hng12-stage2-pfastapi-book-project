@@ -62,7 +62,7 @@ jobs:
       - name: Deploy to AWS EC2 using SSH
         uses: appleboy/ssh-action@v0.1.0
         with:
-          host: ${{ secrets.EC2_HOST }}        # The public IP of your EC2 instance
+          host: 44.201.100.248       # The public IP of your EC2 instance
           username: ubuntu                        # SSH username (usually ec2-user for Amazon Linux)
           key: ${{ secrets.EC2_SECRET_KEY }}   # Your private SSH key
           port: 22                                  # Default SSH port
