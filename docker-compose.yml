@@ -6,9 +6,9 @@ services:
       context: .
     env_file:
       - .env
-    container_name: ${SERVER_HOST}
+    container_name: fastapi-app
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT}
+      - 8000:8000
     # networks:
     #   - app_network
 
@@ -16,9 +16,9 @@ services:
     build:
       context: .
       dockerfile: nginx.Dockerfile
-    container_name: ${NGINX_HOST}
+    container_name: nginx_proxy
     ports:
-      - ${NGINX_PORT}:${NGINX_PORT}
+      - 80:80
     depends_on:
       - fastapi
     env_file:
