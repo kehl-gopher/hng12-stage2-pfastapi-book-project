@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   fastapi:
+    images: nullis0/fastapi-app:latest
     build:
       context: .
     env_file:
@@ -13,6 +14,7 @@ services:
     #   - app_network
 
   nginx:
+    image: nullis0/nginx-proxy:latest
     build:
       context: .
       dockerfile: nginx.Dockerfile
