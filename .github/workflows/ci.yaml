@@ -1,12 +1,12 @@
 name: book-store
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - main
 
 
 jobs:
@@ -61,6 +61,8 @@ jobs:
       
       - name: Deploy using Compose
         run: |
+
+          echo "Deploying..."
           docker-compose down
           docker-compose up -d --build
 
