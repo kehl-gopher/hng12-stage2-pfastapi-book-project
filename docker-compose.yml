@@ -2,16 +2,12 @@ version: '3.8'
 
 services:
   fastapi:
-    images: nullis0/fastapi-app:latest
+    image: nullis0/fastapi-app:latest
     build:
       context: .
-    env_file:
-      - .env
     container_name: fastapi-app
     ports:
       - 8000:8000
-    # networks:
-    #   - app_network
 
   nginx:
     image: nullis0/nginx-proxy:latest
@@ -23,10 +19,3 @@ services:
       - 80:80
     depends_on:
       - fastapi
-    env_file:
-      - .env
-    # networks:
-    #   - app_network
-    # networks:
-    #   app_network:
-    #     driver: bridge
