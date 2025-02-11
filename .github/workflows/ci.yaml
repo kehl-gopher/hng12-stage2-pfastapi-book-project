@@ -77,10 +77,41 @@ jobs:
           port: 22                                  # Default SSH port
           script: |
             # Pull the latest Docker images
-            docker-compose pull
-            
-            # Stop and remove any existing containers
-            docker-compose down || true
+            NETWORK_NAME="book-store-network"
 
-            # Run the updated containers
-            docker-compose up -d
+            # Stop and Remove Existing Containers
+            docker stop fastapi-app nginx_proxy 2>/dev/null || true
+            docker rm fastapi-app nginx_proxy 2>/dev/null || true
+
+            # Remove Existing Network (If Exists)
+            if docker network ls | grep -wq "$NETWORK_NAME"; then
+                echo "Removing existing network: $NETWORK_NAME"
+                docker network rm $NETWORK_NAME
+            fi
+
+            # Create a Fresh Network
+            echo "Creating a new network: $NETWORK_NAME"
+            docker network create $NETWORK_NAME
+
+            # Pull the Latest Docker Images
+            docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/nginx_proxy:latest
+
+            # Run FastAPI Container
+            docker run -d \
+              --name fastapi-app \
+              --network $NETWORK_NAME \
+              -p 8000:8000 \
+              --env-file .env \
+              ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
+
+            # Run Nginx Container
+            docker run -d \
+              --name nginx_proxy \
+              --network $NETWORK_NAME \
+              -p 80:80 \
+              --env-file .env \
+              ${{ secrets.DOCKER_USERNAME }}/nginx_proxy:latest
+
+            # Verify Network Connection
+            docker network inspect $NETWORK_NAME
