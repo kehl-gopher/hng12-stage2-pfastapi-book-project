@@ -1,12 +1,12 @@
 name: book-store
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    pull_request:
+        branches:
+            - main
+    push:
+        branches:
+            - main
 
 
 jobs:
@@ -58,8 +58,16 @@ jobs:
           file: ./nginx.Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/book-store-nginx:latest
-      
+
+      - name: "Install docker compose (OFFICIAL)"
+        run: |
+             curl -SL https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+             chmod +x /usr/local/bin/docker-compose
+        continue-on-error: false
+             
       - name: Deploy using Compose
         run: |
+          docker-compose --version
+          echo "Deploying..."
           docker-compose down
           docker-compose up -d --build
