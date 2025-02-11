@@ -58,10 +58,16 @@ jobs:
           file: ./nginx.Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/book-store-nginx:latest
-      
+
+      - name: "Install docker compose (OFFICIAL)"
+        run: |
+             sudo apt-get update
+             sudo apt-get install -y docker-compose-plugin
+        continue-on-error: false
+             
       - name: Deploy using Compose
         run: |
-
+          docker-compose --version
           echo "Deploying..."
           docker-compose down
           docker-compose up -d --build
