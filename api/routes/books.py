@@ -41,7 +41,7 @@ async def create_book(book: Book):
 
 @router.get("/genres", status_code=status.HTTP_200_OK)
 async def get_genres() -> Dict[str, str]:
-    return {"genres": "sex"}
+    return {"genres": "sex", "make": "action", "dame": "comedy"}
 
 
 @router.get("/", response_model=OrderedDict[int, Book], status_code=status.HTTP_200_OK)
