@@ -29,9 +29,3 @@ jobs:
       - name: Run tests
         run: |
           pytest || exit -1
-
-            docker run -d \
-              --name nginx_proxy \
-              --network $NETWORK_NAME \
-              -p 80:80 \
-              ${{ secrets.DOCKER_USERNAME }}/nginx_proxy:latest
