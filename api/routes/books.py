@@ -37,7 +37,7 @@ db.books = {
 async def test():
     return JSONResponse(
         status_code=status.HTTP_200_OK,
-        content={"detail": "Hello world"}
+        content={"detail": "new world"}
     )
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
