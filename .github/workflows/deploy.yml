@@ -1,48 +1,59 @@
+name: Deploy API
+
 on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      # Deploy to server
-      - name: Deploy to Staging Server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{secrets.SERVER_HOST}}
-          key: ${{secrets.SERVER_SSH_KEY}}
-          username: ${{secrets.SERVER_USERNAME}}
-          script: |
-            echo “Starting deployment...”
-            # Create and navigate to project directory
-            mkdir -p kehl-gopher-fastapi-stage12-task
-            cd kehl-gopher-fastapi-stage12-task
-            # Clone the repository into the project directory
-            git clone https://github.com/kehl-gopher/hng12-stage2-pfastapi-book-project.git .
-            # Pull latest changes
-            echo “Pulling latest changes...”
-            git fetch --all
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Notify Telex - Deployment Started
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "event_name": "cd_pipeline",
+            "username": "GitHub Actions",
+            "status": "in_progress",
+            "message": "🚀 Deployment started for commit ${{ github.sha }}."
+          }' ${{ secrets.TELEX_WEBHOOK }}
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            cd /home/ubuntu/fastapi-book-project
             git pull origin main
-            # Setup virtual environment
-            echo “Setting up virtual environment...”
-            python3 -m venv venv || exit 1
-            source venv/bin/activate || exit 1
-            #Install fastapi
-            pip install fastapi || exit 1
-            echo “FastAPI installed successfully”
-            # Install dependencies
-            echo “Installing dependencies...”
-            pip install -r requirements.txt || exit 1
-            # Stop existing application if running
-            echo “Stopping existing application...”
-            killall uvicorn || echo “No existing process found”
-            echo “Application stopped successfully”
-            # Start application
-            echo “Starting application...”
-            nohup uvicorn main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &
-            echo “Application started successfully”
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart fastapi
+          EOF
+
+      - name: Notify Telex - Deployment Successful
+        if: success()
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "event_name": "cd_pipeline",
+            "username": "GitHub Actions",
+            "status": "success",
+            "message": "✅ Deployment successful for commit ${{ github.sha }}."
+          }' ${{ secrets.TELEX_WEBHOOK }}
+
+      - name: Notify Telex - Deployment Failed
+        if: failure()
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d '{
+            "event_name": "cd_pipeline",
+            "username": "GitHub Actions",
+            "status": "failure",
+            "message": "❌ Deployment failed for commit ${{ github.sha }}."
+          }' ${{ secrets.TELEX_WEBHOOK }}
