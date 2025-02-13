@@ -40,7 +40,7 @@ async def create_book(book: Book):
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=book.model_dump())
 
 
-@router.get("/genres", response_model=OrderedDict[str, Genre], status_code=status.HTTP_200_OK):
+@router.get("/genres", response_model=OrderedDict[str, Genre], status_code=status.HTTP_200_OK)
 async def get_genres() -> str:
     return "Movies"
 
