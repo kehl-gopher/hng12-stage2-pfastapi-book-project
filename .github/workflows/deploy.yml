@@ -1,4 +1,3 @@
-name: deploy
 on:
   push:
     branches:
@@ -20,8 +19,11 @@ jobs:
           username: ${{secrets.SERVER_USERNAME}}
           script: |
             echo “Starting deployment...”
-            # Navigate to project directory
-            cd fastapi-book-project-hng12-stage-2-task
+            # Create and navigate to project directory
+            mkdir -p kehl-gopher-fastapi-stage12-task
+            cd kehl-gopher-fastapi-stage12-task
+            # Clone the repository into the project directory
+            git clone https://github.com/kehl-gopher/hng12-stage2-pfastapi-book-project.git .
             # Pull latest changes
             echo “Pulling latest changes...”
             git fetch --all
@@ -30,8 +32,6 @@ jobs:
             echo “Setting up virtual environment...”
             python3 -m venv venv || exit 1
             source venv/bin/activate || exit 1
-            # Upgrade pip
-            python -m pip install --upgrade pip || exit 1
             #Install fastapi
             pip install fastapi || exit 1
             echo “FastAPI installed successfully”
