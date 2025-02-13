@@ -79,6 +79,8 @@ jobs:
                 echo "Removing existing network: $NETWORK_NAME"
                 docker network rm $NETWORK_NAME
             fi
+            docker rmi $(docker images -q) || true
+
 
             # Create a Fresh Network
             echo "Creating a new network: $NETWORK_NAME"
