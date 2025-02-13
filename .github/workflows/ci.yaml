@@ -1,4 +1,4 @@
-name: book-store
+name: test
 
 on:
     pull_request:
@@ -28,75 +28,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: "Login Docker Hub"
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      
-      - name: "Build and push Docker images"
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
-      
-      - name: "Build and push nginx image"
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./nginx.Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/nginx_proxy:latest
-
-      - name: Deploy to AWS EC2 using SSH
-        uses: appleboy/ssh-action@v0.1.0
-        with:
-          host: ${{ secrets.EC2_HOST }}       # The public IP of your EC2 instance
-          username: ${{ secrets.EC2_USER }}                      # SSH username (usually ec2-user for Amazon Linux)
-          key: ${{ secrets.SSH_PRIVATE_KEY }}   # Your private SSH key
-          port: 22                                  # Default SSH port
-          script: |
-            # Pull the latest Docker images
-            NETWORK_NAME="book-store-network"
-
-            # Stop and Remove Existing Containers
-            docker stop fastapi-app nginx_proxy 2>/dev/null || true
-            docker rm fastapi-app nginx_proxy 2>/dev/null || true
-
-            # Remove Existing Network (If Exists)
-            if docker network ls | grep -wq "$NETWORK_NAME"; then
-                echo "Removing existing network: $NETWORK_NAME"
-                docker network rm $NETWORK_NAME
-            fi
-            
-            # docker rmi $(docker images -q) || true
-
-
-            # Create a Fresh Network
-            echo "Creating a new network: $NETWORK_NAME"
-            docker network create $NETWORK_NAME
-
-            # Pull the Latest Docker Images
-            docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/nginx_proxy:latest
-
-            # Run FastAPI Container
-            docker run -d \
-              --name fastapi-app \
-              --network $NETWORK_NAME \
-              -p 8000:8000 \
-              ${{ secrets.DOCKER_USERNAME}}/fastapi-app:latest
+          pytest || exit -1
 
             docker run -d \
               --name nginx_proxy \
