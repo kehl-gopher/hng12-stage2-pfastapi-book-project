@@ -1,4 +1,4 @@
-from typing import Dict, OrderedDict
+from typing import OrderedDict
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
@@ -37,11 +37,6 @@ db.books = {
 async def create_book(book: Book):
     db.add_book(book)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=book.model_dump())
-
-
-@router.get("/genres", status_code=status.HTTP_200_OK)
-async def get_genres() -> Dict[str, str]:
-    return {"genres": "sex", "make": "action", "dame": "comedy"}
 
 
 @router.get("/", response_model=OrderedDict[int, Book], status_code=status.HTTP_200_OK)
